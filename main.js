@@ -288,7 +288,7 @@ function updatePlanePhysics(deltaTime) {
         if (!isAirborne && currentSpeed < PHYSICS_PARAMS.minSpeedForLift) {
              liftForceMagnitude *= (currentSpeed / PHYSICS_PARAMS.minSpeedForLift);
         }
-        liftForceMagnitude = Math.max(0, liftForceMagnitude); // Lift cannot be negative
+        liftForceMagnitude = Math.max(0, liftForceMagnitude); 
         const liftForce = worldUp.clone().multiplyScalar(liftForceMagnitude);
         forces.add(liftForce);
     }
@@ -377,7 +377,7 @@ function updatePlanePhysics(deltaTime) {
     } else {
         planeState.position.x += planeState.velocity.x * deltaTime;
         planeState.position.z += planeState.velocity.z * deltaTime;
-        // Y position already set to INITIAL_PLANE_Y if onGround
+       
     }
 
 
