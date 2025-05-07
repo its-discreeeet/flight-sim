@@ -239,7 +239,7 @@ function updatePlanePhysics(deltaTime) {
     const tempQuaternion = new THREE.Quaternion();
     const tempVector3 = new THREE.Vector3();
 
-    // 1. apply rotations to orientation
+  
     const currentOrientation = planeState.orientation;
 
     tempQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), planeState.pitchInput * PHYSICS_PARAMS.pitchSpeed * deltaTime);
@@ -254,12 +254,12 @@ function updatePlanePhysics(deltaTime) {
     }
     currentOrientation.normalize();
 
-    // 2. calculate world vectors from orientation
+
     const worldForward = tempVector3.set(0, 0, -1).applyQuaternion(currentOrientation);
     const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(currentOrientation);
     // const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(currentOrientation); 
 
-    // 3. calculate forces
+  
     const forces = new THREE.Vector3(0, 0, 0);
     let currentSpeed = planeState.velocity.length(); // Initial current speed
 
@@ -293,7 +293,7 @@ function updatePlanePhysics(deltaTime) {
         forces.add(liftForce);
     }
 
-    // drag
+  
     if (currentSpeed > 0.1) {
         const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1));
         let dragAoaFactor = 1.0 + THREE.MathUtils.clamp(
@@ -311,11 +311,11 @@ function updatePlanePhysics(deltaTime) {
         forces.add(dragForce);
     }
 
-    // gravity
+  
     const gravityForce = new THREE.Vector3(0, -PHYSICS_PARAMS.mass * PHYSICS_PARAMS.gravity, 0);
     forces.add(gravityForce);
 
-    // 4. ground interaction
+  
     let onGround = false;
     if (planeState.position.y + (planeState.velocity.y * deltaTime) <= INITIAL_PLANE_Y) {
         onGround = true;
@@ -361,7 +361,7 @@ function updatePlanePhysics(deltaTime) {
         }
     }
 
-    // 5. integrate Motion
+    
     const acceleration = forces.divideScalar(PHYSICS_PARAMS.mass);
     planeState.velocity.add(acceleration.multiplyScalar(deltaTime));
 
@@ -369,9 +369,9 @@ function updatePlanePhysics(deltaTime) {
     if (planeState.velocity.length() > PHYSICS_PARAMS.maxSpeed) {
         planeState.velocity.normalize().multiplyScalar(PHYSICS_PARAMS.maxSpeed);
     }
-    // --- END SPEED CAP ---
+    
 
-    // update position based on (potentially capped) velocity
+    
     if (!onGround) {
         planeState.position.add(planeState.velocity.clone().multiplyScalar(deltaTime));
     } else {
@@ -380,7 +380,7 @@ function updatePlanePhysics(deltaTime) {
         // Y position already set to INITIAL_PLANE_Y if onGround
     }
 
-    // --- ALTITUDE CAP ---
+
     const absoluteMaxAltitude = INITIAL_PLANE_Y + PHYSICS_PARAMS.maxAltitude;
     if (planeState.position.y > absoluteMaxAltitude) {
         planeState.position.y = absoluteMaxAltitude;
@@ -388,8 +388,7 @@ function updatePlanePhysics(deltaTime) {
             planeState.velocity.y = 0;    // Stop upward movement
         }
     }
-    // --- END ALTITUDE CAP ---
-
+   
      
         const planeCenter = planeState.position;
         const planeRadius = PHYSICS_PARAMS.planeCollisionRadius;
@@ -430,11 +429,11 @@ function updatePlanePhysics(deltaTime) {
         }
        
 
-    // 6. update plane's mesh
+   
     planeMesh.position.copy(planeState.position);
     planeMesh.quaternion.copy(currentOrientation);
 
-    // animate propeller
+   
     if (planeMesh.userData.propeller) {
      
         const finalSpeedForProp = planeState.velocity.length();
