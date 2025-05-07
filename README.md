@@ -9,8 +9,8 @@ PS : the mountains & the clouds are just there for the scenery, they are not act
 **CONTROLS** 
 - Shift : Increase Speed
 - LCtrl : Decrease Speed
-- LArrow : bank left
-- RArrow : bank right
-- Q : bank left
-- E : bank right
+- LArrow / A : bank left
+- RArrow / D : bank right
+- Q : yaw left
+- E : yaw right
 - R : reset plane
