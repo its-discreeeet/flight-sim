@@ -3,10 +3,10 @@ import * as THREE from 'three';
 let scene, camera, renderer;
 let planeMesh, groundMesh;
 let clock = new THREE.Clock();
-const cloudMeshes = []; 
-const mountains = [];
+const cloudMeshes = [];
 
-const INITIAL_PLANE_Y = 1.5; 
+
+const INITIAL_PLANE_Y = 1.5;
 const initialPlaneState = {
     position: new THREE.Vector3(0, INITIAL_PLANE_Y, 0),
     velocity: new THREE.Vector3(0, 0, 0),
@@ -17,38 +17,35 @@ const initialPlaneState = {
     yawInput: 0,
 };
 
-let planeState = { ...initialPlaneState }; 
+let planeState = { ...initialPlaneState };
 
 const PHYSICS_PARAMS = {
-    mass: 1000, 
-    gravity: 9.81, 
-    maxThrottleForce: 5000,   
-    liftCoefficient: 9,       
-    dragCoefficient: 0.8,     
-    minSpeedForLift: 25,      
-    
-    pitchSpeed: 1.0,        
-    rollSpeed: 1.5,         
-    yawSpeed: 0.5,          
+    mass: 1000,
+    gravity: 9.81,
+    maxThrottleForce: 5000,
+    liftCoefficient: 9,
+    dragCoefficient: 0.8,
+    minSpeedForLift: 25,
+
+    pitchSpeed: 1.0,
+    rollSpeed: 1.5,
+    yawSpeed: 0.5,
 
     stallAngleThresholdRad: 0.26, // approx 15 degrees
-    stallLiftMultiplier: 0.3,   
-    
-    aoaLiftGain: 1.5,           
-    aoaLiftBonusMax: 0.6,      
-    aoaLiftReductionMax: -0.4,  
-    
-    aoaDragGain: 2.0,           
-    aoaDragBonusMax: 1.5,       
-    
-    rollingResistanceCoefficient: 0.03, 
-    groundSteeringFactor: 0.5, 
+    stallLiftMultiplier: 0.3,
 
-    maxSpeed: 200,             
-    maxAltitude: 500,      
+    aoaLiftGain: 1.5,
+    aoaLiftBonusMax: 0.6,
+    aoaLiftReductionMax: -0.4,
 
-    planeCollisionRadius: 7.5,  // Half wingspan approx. Tune this value!
-    mountainCollisionElasticity: 0.4, 
+    aoaDragGain: 2.0,
+    aoaDragBonusMax: 1.5,
+
+    rollingResistanceCoefficient: 0.03,
+    groundSteeringFactor: 0.5,
+
+    maxSpeed: 200,
+    maxAltitude: 500,
 };
 
 const keysPressed = {};
@@ -61,8 +58,8 @@ animate();
 
 function resetPlane() {
     planeState = {
-        ...initialPlaneState, 
-        position: initialPlaneState.position.clone(), 
+        ...initialPlaneState,
+        position: initialPlaneState.position.clone(),
         velocity: initialPlaneState.velocity.clone(),
         orientation: initialPlaneState.orientation.clone(),
     };
@@ -74,11 +71,11 @@ function resetPlane() {
 
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB); 
-    scene.fog = new THREE.Fog(0x87CEEB, 500, 4000); 
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 500, 4000);
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000); 
-    camera.position.set(0, initialPlaneState.position.y + 10, 25); 
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 15000);
+    camera.position.set(0, initialPlaneState.position.y + 10, 25);
     camera.lookAt(planeState.position);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -104,10 +101,10 @@ function init() {
 
     planeMesh = createPlaneMesh();
     planeMesh.castShadow = true;
-    resetPlane(); 
+    resetPlane();
     scene.add(planeMesh);
 
-    const groundGeometry = new THREE.PlaneGeometry(10000, 10000); 
+    const groundGeometry = new THREE.PlaneGeometry(10000, 10000);
     const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22, side: THREE.DoubleSide });
     groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     groundMesh.rotation.x = -Math.PI / 2;
@@ -135,25 +132,25 @@ function createPlaneMesh() {
     planeGroup.add(mainWing);
     const tailWingGeometry = new THREE.BoxGeometry(5, 0.3, 1.5);
     const tailWing = new THREE.Mesh(tailWingGeometry, wingMaterial);
-    tailWing.position.z = 4; 
+    tailWing.position.z = 4;
     tailWing.position.y = 0.5;
     planeGroup.add(tailWing);
     const vStabGeometry = new THREE.BoxGeometry(0.3, 2.5, 1.5);
     const vStab = new THREE.Mesh(vStabGeometry, wingMaterial);
-    vStab.position.z = 4.5; 
-    vStab.position.y = 1.5; 
+    vStab.position.z = 4.5;
+    vStab.position.y = 1.5;
     planeGroup.add(vStab);
     const cockpitGeo = new THREE.SphereGeometry(0.8, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
     const cockpitMat = new THREE.MeshStandardMaterial({color: 0x446688, transparent: true, opacity: 0.7, metalness: 0.2, roughness: 0.1});
     const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
-    cockpit.position.z = -3.5; 
+    cockpit.position.z = -3.5;
     cockpit.position.y = 0.7;
     cockpit.rotation.x = Math.PI / 10;
     planeGroup.add(cockpit);
     const propGeo = new THREE.BoxGeometry(0.2, 3, 0.2);
     const propMat = new THREE.MeshStandardMaterial({color: 0x333333, metalness: 0.8, roughness: 0.2});
     const prop = new THREE.Mesh(propGeo, propMat);
-    prop.position.z = -5.2; 
+    prop.position.z = -5.2;
     planeGroup.add(prop);
     planeGroup.userData.propeller = prop;
     return planeGroup;
@@ -162,9 +159,8 @@ function createPlaneMesh() {
 function createScenery() {
     const mountainMaterial = new THREE.MeshStandardMaterial({ color: 0x795548, roughness: 0.8 });
 
-
     for (let i = 0; i < 30; i++) {
-        const coneRadius = Math.random() * 300 + 80; 
+        const coneRadius = Math.random() * 300 + 80;
         const height = Math.random() * 800 + 150;
         const mountainGeometry = new THREE.ConeGeometry(coneRadius, height, Math.floor(Math.random() * 5) + 8);
         const mountain = new THREE.Mesh(mountainGeometry, mountainMaterial);
@@ -174,10 +170,10 @@ function createScenery() {
         mountain.position.y = height / 2 - 2;
         mountain.castShadow = true;
         mountain.receiveShadow = true;
-        mountain.userData.collisionRadius = coneRadius;
+        
 
         scene.add(mountain);
-        mountains.push(mountain); 
+        
     }
 }
 
@@ -225,10 +221,10 @@ function updatePlaneControls(deltaTime) {
     if (keysPressed['shift']) planeState.throttle = Math.min(1, planeState.throttle + deltaTime * 0.5);
     if (keysPressed['control']) planeState.throttle = Math.max(0, planeState.throttle - deltaTime * 0.5);
     planeState.pitchInput = 0;
-    if (keysPressed['s'] || keysPressed['arrowdown']) planeState.pitchInput = 1;  
-    if (keysPressed['w'] || keysPressed['arrowup']) planeState.pitchInput = -1; 
+    if (keysPressed['s'] || keysPressed['arrowdown']) planeState.pitchInput = 1;
+    if (keysPressed['w'] || keysPressed['arrowup']) planeState.pitchInput = -1;
     planeState.rollInput = 0;
-    if (keysPressed['d'] || keysPressed['arrowright']) planeState.rollInput = -1;   
+    if (keysPressed['d'] || keysPressed['arrowright']) planeState.rollInput = -1; 
     if (keysPressed['a'] || keysPressed['arrowleft']) planeState.rollInput = 1;  
     planeState.yawInput = 0;
     if (keysPressed['e']) planeState.yawInput = -1;    
@@ -237,9 +233,8 @@ function updatePlaneControls(deltaTime) {
 
 function updatePlanePhysics(deltaTime) {
     const tempQuaternion = new THREE.Quaternion();
-    const tempVector3 = new THREE.Vector3();
+    const tempVector3 = new THREE.Vector3(); 
 
-  
     const currentOrientation = planeState.orientation;
 
     tempQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), planeState.pitchInput * PHYSICS_PARAMS.pitchSpeed * deltaTime);
@@ -248,30 +243,25 @@ function updatePlanePhysics(deltaTime) {
     tempQuaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), planeState.rollInput * PHYSICS_PARAMS.rollSpeed * deltaTime);
     currentOrientation.multiply(tempQuaternion);
 
-    if (planeState.position.y > INITIAL_PLANE_Y + 0.1) { // Airborne yaw
+    if (planeState.position.y > INITIAL_PLANE_Y + 0.1) { 
         tempQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), planeState.yawInput * PHYSICS_PARAMS.yawSpeed * deltaTime);
         currentOrientation.multiply(tempQuaternion);
     }
     currentOrientation.normalize();
 
-
     const worldForward = tempVector3.set(0, 0, -1).applyQuaternion(currentOrientation);
     const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(currentOrientation);
-    // const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(currentOrientation); 
 
-  
     const forces = new THREE.Vector3(0, 0, 0);
-    let currentSpeed = planeState.velocity.length(); 
+    let currentSpeed = planeState.velocity.length();
 
-    // thrust
     const thrustForce = worldForward.clone().multiplyScalar(planeState.throttle * PHYSICS_PARAMS.maxThrottleForce);
     forces.add(thrustForce);
 
-    // lift
     let liftForceMagnitude = 0;
     const isAirborne = planeState.position.y > INITIAL_PLANE_Y + 0.05;
-    if (currentSpeed > PHYSICS_PARAMS.minSpeedForLift * 0.7) { 
-        const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1)); 
+    if (currentSpeed > PHYSICS_PARAMS.minSpeedForLift * 0.7) {
+        const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1));
 
         let aoaFactor = 1.0 + THREE.MathUtils.clamp(
             pitchRelativeToHorizon * PHYSICS_PARAMS.aoaLiftGain,
@@ -288,17 +278,16 @@ function updatePlanePhysics(deltaTime) {
         if (!isAirborne && currentSpeed < PHYSICS_PARAMS.minSpeedForLift) {
              liftForceMagnitude *= (currentSpeed / PHYSICS_PARAMS.minSpeedForLift);
         }
-        liftForceMagnitude = Math.max(0, liftForceMagnitude); 
+        liftForceMagnitude = Math.max(0, liftForceMagnitude);
         const liftForce = worldUp.clone().multiplyScalar(liftForceMagnitude);
         forces.add(liftForce);
     }
 
-  
     if (currentSpeed > 0.1) {
         const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1));
         let dragAoaFactor = 1.0 + THREE.MathUtils.clamp(
             pitchRelativeToHorizon * PHYSICS_PARAMS.aoaDragGain,
-            0, 
+            0,
             PHYSICS_PARAMS.aoaDragBonusMax
         );
 
@@ -311,11 +300,9 @@ function updatePlanePhysics(deltaTime) {
         forces.add(dragForce);
     }
 
-  
     const gravityForce = new THREE.Vector3(0, -PHYSICS_PARAMS.mass * PHYSICS_PARAMS.gravity, 0);
     forces.add(gravityForce);
 
-  
     let onGround = false;
     if (planeState.position.y + (planeState.velocity.y * deltaTime) <= INITIAL_PLANE_Y) {
         onGround = true;
@@ -361,81 +348,32 @@ function updatePlanePhysics(deltaTime) {
         }
     }
 
-    
     const acceleration = forces.divideScalar(PHYSICS_PARAMS.mass);
     planeState.velocity.add(acceleration.multiplyScalar(deltaTime));
 
-    // --- SPEED CAP ---
     if (planeState.velocity.length() > PHYSICS_PARAMS.maxSpeed) {
         planeState.velocity.normalize().multiplyScalar(PHYSICS_PARAMS.maxSpeed);
     }
-    
 
-    
     if (!onGround) {
         planeState.position.add(planeState.velocity.clone().multiplyScalar(deltaTime));
     } else {
         planeState.position.x += planeState.velocity.x * deltaTime;
         planeState.position.z += planeState.velocity.z * deltaTime;
-       
     }
-
 
     const absoluteMaxAltitude = INITIAL_PLANE_Y + PHYSICS_PARAMS.maxAltitude;
     if (planeState.position.y > absoluteMaxAltitude) {
         planeState.position.y = absoluteMaxAltitude;
         if (planeState.velocity.y > 0) {
-            planeState.velocity.y = 0;    
+            planeState.velocity.y = 0;
         }
     }
-   
-     
-        const planeCenter = planeState.position;
-        const planeRadius = PHYSICS_PARAMS.planeCollisionRadius;
-    
-        for (const mountain of mountains) {
-            const mountainCenter = mountain.position;
-            const mountainRadius = mountain.userData.collisionRadius;
-    
-        
-            const distanceVec = tempVector3.subVectors(planeCenter, mountainCenter);
-            const distanceSq = distanceVec.lengthSq(); 
-            const sumOfRadii = planeRadius + mountainRadius;
-    
-            if (distanceSq < sumOfRadii * sumOfRadii) { 
-                const distance = Math.sqrt(distanceSq); 
-               
-                tempCollisionNormal.copy(distanceVec).divideScalar(distance); 
-    
-               
-                const penetrationDepth = sumOfRadii - distance;
-                planeState.position.add(tempCollisionNormal.clone().multiplyScalar(penetrationDepth + 0.01)); 
-    
-                
-                const vDotN = planeState.velocity.dot(tempCollisionNormal);
-    
-                if (vDotN < 0) { 
-                    const impulseMagnitude = -(1 + PHYSICS_PARAMS.mountainCollisionElasticity) * vDotN;
-                    const impulseVector = tempCollisionNormal.clone().multiplyScalar(impulseMagnitude);
-                    planeState.velocity.add(impulseVector);
-    
-                    
-                    if (planeState.velocity.length() > PHYSICS_PARAMS.maxSpeed) {
-                        planeState.velocity.normalize().multiplyScalar(PHYSICS_PARAMS.maxSpeed);
-                    }
-                }
-            
-            }
-        }
-       
 
-   
     planeMesh.position.copy(planeState.position);
     planeMesh.quaternion.copy(currentOrientation);
 
-   
     if (planeMesh.userData.propeller) {
-     
         const finalSpeedForProp = planeState.velocity.length();
         const propSpeed = planeState.throttle * 35 + finalSpeedForProp * 0.25;
         planeMesh.userData.propeller.rotation.z -= propSpeed * deltaTime;
@@ -443,13 +381,13 @@ function updatePlanePhysics(deltaTime) {
 }
 
 function updateCamera() {
-    const offset = new THREE.Vector3(0, 8, 22); 
+    const offset = new THREE.Vector3(0, 8, 22);
     const worldOffset = offset.clone().applyQuaternion(planeState.orientation);
     const cameraTargetPosition = planeState.position.clone().add(worldOffset);
-    camera.position.lerp(cameraTargetPosition, 0.07); 
+    camera.position.lerp(cameraTargetPosition, 0.07);
 
     const lookAtPoint = planeState.position.clone();
-    const lookOffset = new THREE.Vector3(0, 2, -15); 
+    const lookOffset = new THREE.Vector3(0, 2, -15);
     const worldLookOffset = lookOffset.applyQuaternion(planeState.orientation);
     lookAtPoint.add(worldLookOffset);
     camera.lookAt(lookAtPoint);
@@ -462,7 +400,7 @@ function updateUI() {
 
 function animate() {
     requestAnimationFrame(animate);
-    const deltaTime = Math.min(clock.getDelta(), 0.05); 
+    const deltaTime = Math.min(clock.getDelta(), 0.05);
 
     updatePlaneControls(deltaTime);
     updatePlanePhysics(deltaTime);
