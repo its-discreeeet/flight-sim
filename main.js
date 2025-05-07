@@ -31,7 +31,7 @@ const PHYSICS_PARAMS = {
     rollSpeed: 1.5,         
     yawSpeed: 0.5,          
 
-    stallAngleThresholdRad: 0.26, // Approx 15 degrees
+    stallAngleThresholdRad: 0.26, // approx 15 degrees
     stallLiftMultiplier: 0.3,   
     
     aoaLiftGain: 1.5,           
@@ -164,7 +164,7 @@ function createScenery() {
 
 
     for (let i = 0; i < 30; i++) {
-        const coneRadius = Math.random() * 300 + 80; // This is the base radius
+        const coneRadius = Math.random() * 300 + 80; 
         const height = Math.random() * 800 + 150;
         const mountainGeometry = new THREE.ConeGeometry(coneRadius, height, Math.floor(Math.random() * 5) + 8);
         const mountain = new THREE.Mesh(mountainGeometry, mountainMaterial);
@@ -261,7 +261,7 @@ function updatePlanePhysics(deltaTime) {
 
   
     const forces = new THREE.Vector3(0, 0, 0);
-    let currentSpeed = planeState.velocity.length(); // Initial current speed
+    let currentSpeed = planeState.velocity.length(); 
 
     // thrust
     const thrustForce = worldForward.clone().multiplyScalar(planeState.throttle * PHYSICS_PARAMS.maxThrottleForce);
@@ -271,7 +271,7 @@ function updatePlanePhysics(deltaTime) {
     let liftForceMagnitude = 0;
     const isAirborne = planeState.position.y > INITIAL_PLANE_Y + 0.05;
     if (currentSpeed > PHYSICS_PARAMS.minSpeedForLift * 0.7) { 
-        const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1)); //positive is nose up basically :D
+        const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1)); 
 
         let aoaFactor = 1.0 + THREE.MathUtils.clamp(
             pitchRelativeToHorizon * PHYSICS_PARAMS.aoaLiftGain,
@@ -384,8 +384,8 @@ function updatePlanePhysics(deltaTime) {
     const absoluteMaxAltitude = INITIAL_PLANE_Y + PHYSICS_PARAMS.maxAltitude;
     if (planeState.position.y > absoluteMaxAltitude) {
         planeState.position.y = absoluteMaxAltitude;
-        if (planeState.velocity.y > 0) { // If moving upwards when hitting cap
-            planeState.velocity.y = 0;    // Stop upward movement
+        if (planeState.velocity.y > 0) {
+            planeState.velocity.y = 0;    
         }
     }
    
@@ -409,7 +409,7 @@ function updatePlanePhysics(deltaTime) {
     
                
                 const penetrationDepth = sumOfRadii - distance;
-                planeState.position.add(tempCollisionNormal.clone().multiplyScalar(penetrationDepth + 0.01)); // Add small epsilon
+                planeState.position.add(tempCollisionNormal.clone().multiplyScalar(penetrationDepth + 0.01)); 
     
                 
                 const vDotN = planeState.velocity.dot(tempCollisionNormal);
