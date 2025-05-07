@@ -44,11 +44,11 @@ const PHYSICS_PARAMS = {
     rollingResistanceCoefficient: 0.03, 
     groundSteeringFactor: 0.5, 
 
-    maxSpeed: 200,             // Maximum speed of the plane
-    maxAltitude: 500,         // Maximum altitude of the plane
+    maxSpeed: 200,             
+    maxAltitude: 500,      
 
     planeCollisionRadius: 7.5,  // Half wingspan approx. Tune this value!
-    mountainCollisionElasticity: 0.4, // 0 = no bounce, 1 = perfectly elastic
+    mountainCollisionElasticity: 0.4, 
 };
 
 const keysPressed = {};
@@ -161,7 +161,7 @@ function createPlaneMesh() {
 
 function createScenery() {
     const mountainMaterial = new THREE.MeshStandardMaterial({ color: 0x795548, roughness: 0.8 });
-    // mountains.length = 0; // Not strictly necessary here as it's only called once in init
+
 
     for (let i = 0; i < 30; i++) {
         const coneRadius = Math.random() * 300 + 80; // This is the base radius
@@ -171,21 +171,13 @@ function createScenery() {
 
         mountain.position.x = (Math.random() - 0.5) * 8000;
         mountain.position.z = (Math.random() - 0.5) * 8000;
-        // The cone's origin is at its geometric center.
-        // If its base is at y=0, its center y is height/2.
-        // We subtract 2 to slightly sink them, matching original logic.
         mountain.position.y = height / 2 - 2;
-
         mountain.castShadow = true;
         mountain.receiveShadow = true;
-
-        // Store collision data
-        // The mountain's collision sphere will be centered at mountain.position
-        // and use its base radius. This is an approximation.
         mountain.userData.collisionRadius = coneRadius;
 
         scene.add(mountain);
-        mountains.push(mountain); // Add to our list for collision checks
+        mountains.push(mountain); 
     }
 }
 
@@ -247,7 +239,7 @@ function updatePlanePhysics(deltaTime) {
     const tempQuaternion = new THREE.Quaternion();
     const tempVector3 = new THREE.Vector3();
 
-    // 1. Apply Rotations to Orientation
+    // 1. apply rotations to orientation
     const currentOrientation = planeState.orientation;
 
     tempQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), planeState.pitchInput * PHYSICS_PARAMS.pitchSpeed * deltaTime);
@@ -256,31 +248,30 @@ function updatePlanePhysics(deltaTime) {
     tempQuaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), planeState.rollInput * PHYSICS_PARAMS.rollSpeed * deltaTime);
     currentOrientation.multiply(tempQuaternion);
 
-    // Yaw is handled differently if on ground vs airborne
     if (planeState.position.y > INITIAL_PLANE_Y + 0.1) { // Airborne yaw
         tempQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), planeState.yawInput * PHYSICS_PARAMS.yawSpeed * deltaTime);
         currentOrientation.multiply(tempQuaternion);
     }
     currentOrientation.normalize();
 
-    // 2. Calculate World Vectors from Orientation
+    // 2. calculate world vectors from orientation
     const worldForward = tempVector3.set(0, 0, -1).applyQuaternion(currentOrientation);
     const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(currentOrientation);
-    // const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(currentOrientation); // Not used directly for forces
+    // const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(currentOrientation); 
 
-    // 3. Calculate Forces
+    // 3. calculate forces
     const forces = new THREE.Vector3(0, 0, 0);
     let currentSpeed = planeState.velocity.length(); // Initial current speed
 
-    // Thrust
+    // thrust
     const thrustForce = worldForward.clone().multiplyScalar(planeState.throttle * PHYSICS_PARAMS.maxThrottleForce);
     forces.add(thrustForce);
 
-    // Lift
+    // lift
     let liftForceMagnitude = 0;
     const isAirborne = planeState.position.y > INITIAL_PLANE_Y + 0.05;
-    if (currentSpeed > PHYSICS_PARAMS.minSpeedForLift * 0.7) { // Start considering lift a bit earlier
-        const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1)); // Positive is nose up
+    if (currentSpeed > PHYSICS_PARAMS.minSpeedForLift * 0.7) { 
+        const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1)); //positive is nose up basically :D
 
         let aoaFactor = 1.0 + THREE.MathUtils.clamp(
             pitchRelativeToHorizon * PHYSICS_PARAMS.aoaLiftGain,
@@ -302,12 +293,12 @@ function updatePlanePhysics(deltaTime) {
         forces.add(liftForce);
     }
 
-    // Drag
+    // drag
     if (currentSpeed > 0.1) {
         const pitchRelativeToHorizon = Math.asin(THREE.MathUtils.clamp(worldForward.y, -1, 1));
         let dragAoaFactor = 1.0 + THREE.MathUtils.clamp(
             pitchRelativeToHorizon * PHYSICS_PARAMS.aoaDragGain,
-            0, // No drag reduction for nose down from this factor
+            0, 
             PHYSICS_PARAMS.aoaDragBonusMax
         );
 
@@ -320,11 +311,11 @@ function updatePlanePhysics(deltaTime) {
         forces.add(dragForce);
     }
 
-    // Gravity
+    // gravity
     const gravityForce = new THREE.Vector3(0, -PHYSICS_PARAMS.mass * PHYSICS_PARAMS.gravity, 0);
     forces.add(gravityForce);
 
-    // 4. Ground Interaction
+    // 4. ground interaction
     let onGround = false;
     if (planeState.position.y + (planeState.velocity.y * deltaTime) <= INITIAL_PLANE_Y) {
         onGround = true;
@@ -370,7 +361,7 @@ function updatePlanePhysics(deltaTime) {
         }
     }
 
-    // 5. Integrate Motion
+    // 5. integrate Motion
     const acceleration = forces.divideScalar(PHYSICS_PARAMS.mass);
     planeState.velocity.add(acceleration.multiplyScalar(deltaTime));
 
@@ -380,7 +371,7 @@ function updatePlanePhysics(deltaTime) {
     }
     // --- END SPEED CAP ---
 
-    // Update position based on (potentially capped) velocity
+    // update position based on (potentially capped) velocity
     if (!onGround) {
         planeState.position.add(planeState.velocity.clone().multiplyScalar(deltaTime));
     } else {
@@ -399,7 +390,7 @@ function updatePlanePhysics(deltaTime) {
     }
     // --- END ALTITUDE CAP ---
 
-        // --- MOUNTAIN COLLISION DETECTION & RESPONSE ---
+     
         const planeCenter = planeState.position;
         const planeRadius = PHYSICS_PARAMS.planeCollisionRadius;
     
@@ -407,49 +398,45 @@ function updatePlanePhysics(deltaTime) {
             const mountainCenter = mountain.position;
             const mountainRadius = mountain.userData.collisionRadius;
     
-            // Using tempVector3 for distance vector calculation
+        
             const distanceVec = tempVector3.subVectors(planeCenter, mountainCenter);
-            const distanceSq = distanceVec.lengthSq(); // Use squared distance for efficiency
+            const distanceSq = distanceVec.lengthSq(); 
             const sumOfRadii = planeRadius + mountainRadius;
     
-            if (distanceSq < sumOfRadii * sumOfRadii) { // Collision detected
-                const distance = Math.sqrt(distanceSq); // Calculate actual distance only if close
-                // Collision normal: from mountain center to plane center
-                tempCollisionNormal.copy(distanceVec).divideScalar(distance); // Normalized
+            if (distanceSq < sumOfRadii * sumOfRadii) { 
+                const distance = Math.sqrt(distanceSq); 
+               
+                tempCollisionNormal.copy(distanceVec).divideScalar(distance); 
     
-                // 1. Resolve Penetration (move plane out of mountain)
+               
                 const penetrationDepth = sumOfRadii - distance;
                 planeState.position.add(tempCollisionNormal.clone().multiplyScalar(penetrationDepth + 0.01)); // Add small epsilon
     
-                // 2. Calculate Bounce (reflect velocity)
-                // v_new = v - (1 + e) * (v . n) * n
-                // tempRelativeVelocity can be used for v . n
+                
                 const vDotN = planeState.velocity.dot(tempCollisionNormal);
     
-                if (vDotN < 0) { // Only bounce if moving towards the mountain along the normal
-                    // Calculate the impulse magnitude for reflection
+                if (vDotN < 0) { 
                     const impulseMagnitude = -(1 + PHYSICS_PARAMS.mountainCollisionElasticity) * vDotN;
                     const impulseVector = tempCollisionNormal.clone().multiplyScalar(impulseMagnitude);
                     planeState.velocity.add(impulseVector);
     
-                    // Re-check speed cap after bounce
+                    
                     if (planeState.velocity.length() > PHYSICS_PARAMS.maxSpeed) {
                         planeState.velocity.normalize().multiplyScalar(PHYSICS_PARAMS.maxSpeed);
                     }
                 }
-                // Optional: Could break here if you only want to process one collision per frame.
-                // For simple sphere collisions, usually okay to continue.
+            
             }
         }
-        // --- END MOUNTAIN COLLISION ---
-        
-    // 6. Update Mesh
+       
+
+    // 6. update plane's mesh
     planeMesh.position.copy(planeState.position);
     planeMesh.quaternion.copy(currentOrientation);
 
-    // Animate propeller
+    // animate propeller
     if (planeMesh.userData.propeller) {
-        // Use the final (potentially capped) speed for propeller animation
+     
         const finalSpeedForProp = planeState.velocity.length();
         const propSpeed = planeState.throttle * 35 + finalSpeedForProp * 0.25;
         planeMesh.userData.propeller.rotation.z -= propSpeed * deltaTime;
