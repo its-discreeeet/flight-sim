@@ -11,6 +11,8 @@ PS : the mountains & the clouds are just there for the scenery, they are not act
 - LCtrl : Decrease Speed
 - LArrow / A : bank left
 - RArrow / D : bank right
+- UArrow : Nose Down
+- DArrow : Nose Up
 - Q : yaw left
 - E : yaw right
 - R : reset plane
